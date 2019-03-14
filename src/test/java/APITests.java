@@ -10,42 +10,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class APITests {
+public class APITests extends Base {
 
-    public String apiKey="65e20fcfce72f4c34546338a70518478";
-    public String secretKey="f07f94340ab66045634d7505385a53e4ed12f7d9792a40798f60fa9a95adb3e0";
-    public String endPoint="https://s6-api.stagingost.com/testnet/v2/";
-    public String companyId="724ed66c-8a0a-477e-b303-b0486e2a3797";
-    public String companyTH="0xa9632350057c2226c5a10418b1c3bc9acdf7e2ee";
-    public String user_bhavik_id="8caa6412-ab11-41d6-8177-2928e948a9a8";
-    public String user_bhavik_TH="0xa7261667e6ec6768f6309c7d907dcad7acf0bafa";
-    public String pricer_TR="0x1a83bc05cc3ae1b19f2359d847e2589d9d91fb90";
-    public String directTransfer_TR="0x64315ba1018307d6bc0380fa8eb8af210991ccbc";
-    public String device_bhavik_address="0xd93c3d44fb52af44879cb54eb54d539f386b59c3";
-    public String session_bhavik_address="0xc906b56782e26d9b848bb5a3c64ded3be9ca57ec";
-    public String aux_chain_id="199";
-    public String origin_chain_id="3";
-    public String recivery_owner_address="";
-
-
-    com.ost.services.Manifest services;
-
-    @BeforeTest
-    public void createBasicObject()
-    {
-        HashMap<String,Object> sdkConfig = new HashMap<String,Object>();
-        sdkConfig.put("apiEndpoint",endPoint);
-        sdkConfig.put("apiKey",apiKey);
-        sdkConfig.put("apiSecret",secretKey);
-
-
-        HashMap <String,Object> nestedparam = new HashMap<String,Object>();
-        nestedparam.put("timeout", (long) 5);
-        sdkConfig.put("config", nestedparam);
-
-        OSTSDK ostObj = new OSTSDK(sdkConfig);
-        services = (com.ost.services.Manifest) ostObj.services;
-    }
 
 
     @DataProvider(name="chain_id")
@@ -73,9 +39,6 @@ public class APITests {
     }
 
 
-
-
-
     @Test(dataProvider="chain_id")
     public void check_price_point(String chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.PricePoints pricePointsService = services.pricePoints;
@@ -85,7 +48,7 @@ public class APITests {
         System.out.println("response: " + response.toString() );
     }
 
-    @Test
+    @Test()
     public void check_token() throws IOException, OSTAPIService.MissingParameter {
         com.ost.services.Tokens tokensService = services.tokens;
         HashMap <String,Object> params = new HashMap<String,Object>();
@@ -129,7 +92,7 @@ public class APITests {
     public void get_user(String userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Users userService = services.users;
         HashMap <String,Object> params = new HashMap<String,Object>();
-        params.put("id", userId);
+        params.put("user_id", userId);
         JsonObject response = userService.get( params );
         System.out.println("response: " + response.toString() );
     }
@@ -172,7 +135,6 @@ public class APITests {
         JsonObject response = userService.getList( params );
         System.out.println("response: " + response.toString() );
     }
-
 
 
     @Test
@@ -335,49 +297,34 @@ public class APITests {
     public void get_balance(String userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Balance balanceService = services.balance;
         HashMap <String,Object> params = new HashMap<String,Object>();
-        params.put("user_id", user_bhavik_id);
+        params.put("user_id", userId);
         JsonObject response = balanceService.get( params );
         System.out.println("response: " + response.toString() );
     }
 
-    @Test
-    public void get_trasaction() throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    @DataProvider(name = "get_transaction_user")
+    public Object[][] getTransactionUser(){
+        return new Object[][]
+                {
+                        { user_bhavik_id, transaction_bhavik_id},
+                        { companyId , transaction_bhavik_id},
+                        {user_bhavik_id, "920b7f72-becf-42ec-8921-af389e8bde64"},   //different user's transaction
+                        {companyId, "5207d6db-e746-44ab-9cd3-aad0db1bd172"},  //different economy's tx
+                        {" "," "},
+                        {null, null}
+                };
+    }
+
+
+    @Test(dataProvider = "get_transaction_user")
+    public void get_transaction(String userId, String transactionId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
         HashMap <String,Object> params = new HashMap<String,Object>();
-        params.put("user_id", "29f57b59-60af-4579-9d6c-2ebcb36a9142");
-        params.put("transaction_id", "e96450b8-f46a-40ee-adf1-9d65a4b53241");
+        params.put("user_id", userId);
+        params.put("transaction_id",transactionId);
         JsonObject response = transactionsService.get( params );
         System.out.println("response: " + response.toString() );
     }
-
-    @Test
-    public void get_transactions_list() throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
-        com.ost.services.Transactions transactionsService = services.transactions;
-        //ArrayList<HashMap<String, Object>> metaPropertyArray = new ArrayList<HashMap<String, Object>>();
-//HashMap <String,Object> metaPropertyArrayParams = new HashMap<String,Object>();
-//metaPropertyArrayParams.put("name", "transaction_name"); //like, download IMP : Max length 25 characters (numbers alphabets spaces _ - allowed)
-//metaPropertyArrayParams.put("type", "user_to_user"); // user_to_user, company_to_user, user_to_company
-//metaPropertyArrayParams.put("details", ""); // memo field to add additional info about the transaction .  IMP : Max length 120 characters (numbers alphabets spaces _ - allowed)
-//metaPropertyArray.add(metaPropertyArrayParams);
-//Gson gsonObj = new Gson();
-//String metaPropertyArrayJsonStr = gsonObj.toJson(metaPropertyArray);
-
-//ArrayList<Object> statusArray = new ArrayList<Object>();
-//statusArray.add("CREATED");
-//statusArray.add("SUBMITTED");
-//statusArray.add("SUCCESS");
-//statusArray.add("FAILED");
-
-        HashMap <String,Object> params = new HashMap<String,Object>();
-        params.put("user_id", "29f57b59-60af-4579-9d6c-2ebcb36a9142");
-        params.put("transaction_id", "e96450b8-f46a-40ee-adf1-9d65a4b53241");
-//params.put("status", statusArray);
-//params.put("meta_property", metaPropertyArrayJsonStr);
-//params.put("limit", "10");
-        JsonObject response = transactionsService.getList( params );
-        System.out.println("response: " + response.toString() );
-    }
-
 
 
     @Test(dataProvider = "user_id")
@@ -557,7 +504,7 @@ public class APITests {
         ArrayList<Object> arrayList2 = new ArrayList<Object>();
         Gson gsonObj = new Gson();
 
-        for(int i=0; i<5; i++)
+        for(int i=0; i<10; i++)
         {
             arrayList1.add(transferTo1);
             arrayList2.add(transferAmount1);
@@ -636,6 +583,7 @@ public class APITests {
                         {null}
                 };
     }
+
 
 
     @Test(dataProvider = "meta_type")
@@ -720,4 +668,109 @@ public class APITests {
         System.out.println("response: " + response.toString() );
     }
 
+
+    @Test(dataProvider = "user_id")
+    public void get_transactions_list_userId(String user_id) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+        com.ost.services.Transactions transactionsService = services.transactions;
+        HashMap <String,Object> params = new HashMap<String,Object>();
+        params.put("user_id", user_id);
+        JsonObject response = transactionsService.getList( params );
+        System.out.println("response: " + response.toString() );
+    }
+
+
+
+    @DataProvider(name = "status")
+    public static Object[][] getStatus() {
+        return new Object[][]{
+
+                {"CREATED"},
+                {"SUBMITTED"},
+                {"MINED"},
+                {"SUCCESS"},
+                {"FAILED"},
+                {"TEST"},
+                {" "},
+                {null}
+        };
+    }
+
+    @Test(dataProvider = "status")
+    public void get_transactions_list_status(String status) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+        com.ost.services.Transactions transactionsService = services.transactions;
+        ArrayList<Object> statusArray = new ArrayList<Object>();
+        statusArray.add(status);
+        HashMap <String,Object> params = new HashMap<String,Object>();
+        params.put("user_id", companyId);
+        params.put("status", statusArray);
+        JsonObject response = transactionsService.getList( params );
+        System.out.println("response: " + response.toString() );
+    }
+
+
+    @Test(dataProvider = "limit")
+    public void get_transactions_list_limit(Object limit) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+        com.ost.services.Transactions transactionsService = services.transactions;
+        HashMap <String,Object> params = new HashMap<String,Object>();
+        params.put("user_id", companyId);
+        params.put("limit", limit);
+        JsonObject response = transactionsService.getList( params );
+        System.out.println("response: " + response.toString() );
+    }
+
+
+
+    @Test
+    public void get_transaction_statuses() throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter, InterruptedException {
+        com.ost.services.Transactions transactionsService = services.transactions;
+        HashMap <String,Object> metaProperty = new HashMap<String,Object>();
+        metaProperty.put("name", "Test name"); // like, download
+        metaProperty.put("type", "company_to_user"); // user_to_user, company_to_user, user_to_company
+        metaProperty.put("details","verifying transaction status"); // memo field to add additional info about the transaction
+
+        HashMap <String,Object> params = new HashMap<String,Object>();
+        HashMap <String,Object> nestedparams = new HashMap<String,Object>();
+        String userId = companyId;
+        String toAddress = directTransfer_TR;
+        String transferTo1 = user_bhavik_TH;
+        String transferAmount1 = "1";
+        params.put("user_id", userId);
+        params.put("to", toAddress);
+        nestedparams.put("method", "directTransfers");
+        ArrayList<ArrayList> nestedarraylist = new ArrayList<ArrayList>();
+        ArrayList<Object> arrayList1 = new ArrayList<Object>();
+        arrayList1.add(transferTo1);
+        ArrayList<Object> arrayList2 = new ArrayList<Object>();
+        Gson gsonObj = new Gson();
+        arrayList2.add(transferAmount1);
+        nestedarraylist.add(arrayList1);
+        nestedarraylist.add(arrayList2);
+        nestedparams.put("parameters", nestedarraylist);
+        String jsonStr = gsonObj.toJson(nestedparams);
+        params.put("raw_calldata", jsonStr);
+        params.put("meta_property", metaProperty);
+        JsonObject response = transactionsService.execute( params );
+        System.out.println("response: " + response.toString() );
+
+        Thread.sleep(1000);
+        //Get transaction
+
+
+
+
+        for(int i =0; i<=100; i++) {
+            Thread.sleep(50);
+            HashMap <String,Object> getTransactionParams = new HashMap<String,Object>();
+            getTransactionParams.put("user_id", companyId);
+            String transactionId = response.getAsJsonObject("data").getAsJsonObject("transaction").get("id").getAsString();
+            getTransactionParams.put("transaction_id",transactionId);
+            JsonObject getTransactionResponse = transactionsService.get(getTransactionParams);
+            System.out.println("response: " + getTransactionResponse.toString());
+            String transactionStatus = getTransactionResponse.getAsJsonObject("data").getAsJsonObject("transaction").get("status").getAsString();
+            System.out.println("transaction status is : " + transactionStatus);
+
+            if(transactionStatus.equals("SUCCESS"))
+                break;
+            }
+        }
 }
