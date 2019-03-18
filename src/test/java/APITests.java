@@ -28,7 +28,7 @@ public class APITests extends Base {
 
     }
     @Test(dataProvider="chain_id")
-    public void check_aux_chain(String chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void check_chain_id(String chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
 
         com.ost.services.Chains chainsService = services.chains;
 
@@ -182,6 +182,7 @@ public class APITests extends Base {
                         { "2d971b59-1cda-4fb4-a022-8b2fa65c7622" }, // id
                         { "0x46336b3895b08af6fc3226f332f96e05cfd3f637" }, //different user's device address
                         {"avfbdf"},
+                        {"sdcs"},
                         {" "},
                         {null}
                 };
@@ -625,9 +626,8 @@ public class APITests extends Base {
     public Object[][] getmetaDetails(){
         return new Object[][]
                 {
-
-                        { "memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKL"}, //Exact 125 chars
-                        { "memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKLB"},// more than 120 chars
+   /*Exact 125 chars*/  { "memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKL"},
+/*more thna 125 chars*/ { "memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKLB"},// more than 120 chars
                         { "https://ost.com/" },
                         {" "},
                         {null}
