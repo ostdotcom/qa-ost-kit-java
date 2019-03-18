@@ -39,7 +39,7 @@ public class APITests extends Base {
     }
 
     @Test(dataProvider = "chain_id")
-    public void check_chain_id(String chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void check_chain_id(Object chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
 
         com.ost.services.Chains chainsService = services.chains;
 
@@ -52,7 +52,7 @@ public class APITests extends Base {
 //Price Point Module
 
     @Test(dataProvider = "chain_id")
-    public void check_price_point(String chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void check_price_point(Object chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.PricePoints pricePointsService = services.pricePoints;
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("chain_id", chainId);
@@ -177,7 +177,7 @@ public class APITests extends Base {
 
 
     @Test(dataProvider = "user_id")
-    public void get_device_user_id(String userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_device_user_id(Object userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Devices devicesService = services.devices;
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
