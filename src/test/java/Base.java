@@ -1,3 +1,4 @@
+import com.google.gson.JsonObject;
 import com.ost.OSTSDK;
 import org.testng.annotations.BeforeTest;
 
@@ -32,11 +33,12 @@ public class Base {
 
 
     public  com.ost.services.Manifest services;
+
     @BeforeTest
     public void createBasicObject()
     {
 
-        switch (s7Testnet)
+        switch (s6Testnet)
         {
             case "s6-testnet" :
                 System.out.println("s6-testnet");
@@ -86,21 +88,21 @@ public class Base {
 
     private void setupS6Testnet() {
 
-        apiKey="65e20fcfce72f4c34546338a70518478";
-        secretKey="f07f94340ab66045634d7505385a53e4ed12f7d9792a40798f60fa9a95adb3e0";
+        apiKey="5c3876e64b2286154b47310d90ac7931";
+        secretKey="6434306c15725b3285858f4c536ef60a58389bc14a1fbe4fe4c4603741a7bbba";
         endPoint="https://s6-api.stagingost.com/testnet/v2/";
-        companyId="724ed66c-8a0a-477e-b303-b0486e2a3797";
-        companyTH="0xa9632350057c2226c5a10418b1c3bc9acdf7e2ee";
-        user_bhavik_id="8caa6412-ab11-41d6-8177-2928e948a9a8";
-        transaction_bhavik_id = "c03dde62-5baa-417d-8e64-8cd94dc950e9";
-        user_bhavik_TH="0xa7261667e6ec6768f6309c7d907dcad7acf0bafa";
-        pricer_TR="0x1a83bc05cc3ae1b19f2359d847e2589d9d91fb90";
-        directTransfer_TR="0x64315ba1018307d6bc0380fa8eb8af210991ccbc";
-        device_bhavik_address="0xd93c3d44fb52af44879cb54eb54d539f386b59c3";
-        session_bhavik_address="0xc906b56782e26d9b848bb5a3c64ded3be9ca57ec";
+        companyId="d47af60e-c29e-484f-b7c1-32c637028f33";
+        companyTH="0x557e631a3d556f7ad62382fe079ed76397f02133";
+        user_bhavik_id="761e825f-8ce6-4149-b249-e094477a0c89";
+        transaction_bhavik_id = "18718072-9f60-4f5c-ae08-a6f73c1ea603";
+        user_bhavik_TH="0x4cD9e7bCB1643685E8aF10951767AEefc0690C94";
+        pricer_TR="0x3b30cb28e355c14f5b571ad8b6b6b8aacac57fac";
+        directTransfer_TR="0x10ae3ed8628c166b73185e8bd8348ecd7ac487d6";
+        device_bhavik_address="0x33dBD073dD9b01d5722f4345767a0681a402a487";
+        session_bhavik_address="0xd2887e0d1c9610f604d588d598c7c38da9f1267d";
         aux_chain_id="199";
         origin_chain_id="3";
-        recivery_owner_address="0x0f57cd47a64b42b444bc841f299715ae5881d7bd";
+        recivery_owner_address="0xb06a267c9c13295ca81b94394f3328cae46d60dd";
     }
 
 
@@ -121,6 +123,11 @@ public class Base {
         aux_chain_id="198";
         origin_chain_id="3";
         recivery_owner_address="0x640bd9cf656f2b90ed1b80dc714e420201b1761a";
+    }
+
+    public boolean getSuccessMessage(JsonObject response)
+    {
+        return response.get("success").getAsBoolean();
     }
 
 }

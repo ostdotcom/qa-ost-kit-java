@@ -2,9 +2,9 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.ost.OSTSDK;
 import com.ost.services.OSTAPIService;
-import org.testng.annotations.BeforeTest;
-import org.testng.annotations.DataProvider;
-import org.testng.annotations.Test;
+import org.testng.Assert;
+import org.testng.ITestResult;
+import org.testng.annotations.*;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,46 +18,75 @@ public class APITests extends Base {
     public Object[][] getDataFromDataprovider() {
         return new Object[][]
                 {
-                        {aux_chain_id},
-                        {origin_chain_id},
-                        {"195"},
-                        {"avfbdf"},
-                        {""},
-                        {null},
-                        {"-199"}, //Negative
-                        {"199asdf"}, // alphanumeric
-                        {"1234567899999234567890987656789"},// Max Number
-                        {"1"}, // Min Number
-                        {"199-9 2"}, //Hypen and space
-                        {"199.92"}, //Decimal Value
-                        {199}, //Integer
-                        {"!@#$%^&^*("}, //SPECIAL CHARACTER
-                        {"199_262"} // UNDERSCORE
-
+                        {aux_chain_id, true},
+                        {origin_chain_id, true},
+                        {"201", false},  //Different economy's chain id
+                        {"avfbdf", false},
+                        {"", false},
+                        {null, false},
+                        {"-199", false}, //Negative
+                        {"199asdf", false}, // alphanumeric
+                        {"1234567899999234567890987656789", false},// Max Number
+                        {"1", false}, // Min Number
+                        {"199-9 2", false}, //Hypen and space
+                        {"199.92", false}, //Decimal Value
+                        {Integer.parseInt(aux_chain_id), true}, //Integer
+                        {"!@#$%^&^*(", false}, //SPECIAL CHARACTER
+                        {"199_262", false} // UNDERSCORE
                 };
-
     }
 
     @Test(dataProvider = "chain_id")
-    public void check_chain_id(Object chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void check_chain_id(Object chainId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
 
         com.ost.services.Chains chainsService = services.chains;
 
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("chain_id", chainId);
-        JsonObject response = chainsService.get(params);
-        System.out.println("response: " + response.toString());
+        try {
+            HashMap<String, Object> params = new HashMap<String, Object>();
+            params.put("chain_id", chainId);
+            JsonObject response = chainsService.get(params);
+            System.out.println("response: " + response.toString());
+            Assert.assertEquals(successStatus, getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+chainId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+chainId);
+            }
+        }
     }
+
 
 //Price Point Module
 
     @Test(dataProvider = "chain_id")
-    public void check_price_point(Object chainId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void check_price_point(Object chainId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.PricePoints pricePointsService = services.pricePoints;
+        try{
+
+
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("chain_id", chainId);
         JsonObject response = pricePointsService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+chainId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+chainId);
+            }
+        }
     }
 
     @Test()
@@ -66,6 +95,7 @@ public class APITests extends Base {
         HashMap<String, Object> params = new HashMap<String, Object>();
         JsonObject response = tokensService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(true,getSuccessMessage(response));
     }
 
 
@@ -75,7 +105,10 @@ public class APITests extends Base {
         HashMap<String, Object> params = new HashMap<String, Object>();
         JsonObject response = rulesService.getList(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(true,getSuccessMessage(response));
     }
+
+
 // User Module
 
     @Test
@@ -84,37 +117,52 @@ public class APITests extends Base {
         HashMap<String, Object> params = new HashMap<String, Object>();
         JsonObject response = userService.create(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(true,getSuccessMessage(response));
     }
 
     @DataProvider(name = "user_id")
     public Object[][] getUserId() {
         return new Object[][]
                 {
-                        {user_bhavik_id},
-                        {companyId},
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622"}, //different economy
-                        {"avfbdf"},//alphabetic
-                        {"^!@$$@$#%&*^&(*"}, //Special Char
-                        {" "},
-                        {null},
-                        {"-2d971b59-1cda-4fb4-a022-8b2fa65c7622"},//Negative
-                        {"   2d971b59-1cda-4fb4-a022-8b2fa65c7622"}, // Forward Space
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622  "}, // Backward Space
-                        {"1234_133"}, // Underscore
-                        {"1234-12344"}, // Hypen
-                        {"12345.12345"}// Decimal Values
-
-
+                        {user_bhavik_id, true},
+                        {companyId, true},
+                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, //different economy
+                        {"avfbdf", false},//alphabetic
+                        {"^!@$$@$#%&*^&(*", false}, //Special Char
+                        {" ", false},
+                        {null, false},
+                        {"-2d971b59-1cda-4fb4-a022-8b2fa65c7622", false},//Negative
+                        {"   2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, // Forward Space
+                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622  ", false}, // Backward Space
+                        {"1234_133", false}, // Underscore
+                        {"1234-12344", false}, // Hypen
+                        {"12345.12345", false}// Decimal Value
                 };
     }
 
     @Test(dataProvider = "user_id")
-    public void get_user(String userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_user(String userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Users userService = services.users;
+        try{
+
+
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
         JsonObject response = userService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+userId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+            }
+        }
     }
 
 
@@ -122,32 +170,47 @@ public class APITests extends Base {
     public Object[][] getLimit() {
         return new Object[][]
                 {
-                        {20},
-                        {0},
-                        {1},
-                        {26},
-                        {"abc"}, //alphabetic
-                        {"#%$^"}, //Special Character
-                        {" "}, //Blank
-                        {null},
-                        {"-25"}, //Negative
-                        {"122_123"},// Underscore
-                        {"122-1233"}, //hypen
-                        {"1234adff"},// /alphanumeric
-                        {"25.425"} //Decimal Limit
+                        {20, true},
+                        {0, false},
+                        {1, true},
+                        {26, false},
+                        {"abc", false}, //alphabetic
+                        {"#%$^", false}, //Special Character
+                        {" ",false}, //Blank
+                        {null, false},
+                        {"-25", false}, //Negative
+                        {"122_123", false},// Underscore
+                        {"122-1233", false}, //hypen
+                        {"1234adff", false},// /alphanumeric
+                        {"25.425", false} //Decimal Limit
                 };
     }
 
     @Test(dataProvider = "limit")
-    public void get_users_list(Object limit) throws IOException {
+    public void get_users_list(Object limit, boolean successStatus) throws IOException {
         com.ost.services.Users userService = services.users;
+        try
+        {
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("limit", limit);
         JsonObject response = userService.getList(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+limit);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+limit);
+            }
+        }
     }
 
-    @Test()
+    @Test(enabled = false)
     public void get_users_list_filter_userId() throws IOException {
         com.ost.services.Users userService = services.users;
         HashMap<String, Object> params = new HashMap<String, Object>();
@@ -173,82 +236,128 @@ public class APITests extends Base {
         params.put("device_name", "Iphone S");
         JsonObject response = devicesService.create(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(true,getSuccessMessage(response));
     }
 
 
     @Test(dataProvider = "user_id")
-    public void get_device_user_id(Object userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_device_user_id(Object userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Devices devicesService = services.devices;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
         params.put("device_address", device_bhavik_address);
         JsonObject response = devicesService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+    }
+        catch (Exception e)
+        {
+        if(successStatus)
+        {
+            Assert.fail("Given input is expected to pass. Input = "+userId);
+        }
+        else
+        {
+            System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+        }
+        }
     }
 
 // Device Module
 
     @Test(dataProvider = "device_address")
-    public void get_device_deviceAdd(String deviceAddress) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_device_deviceAdd(String deviceAddress, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Devices devicesService = services.devices;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", user_bhavik_id);
         params.put("device_address", deviceAddress);
         JsonObject response = devicesService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+    }
+        catch (Exception e)
+    {
+        if(successStatus)
+        {
+            Assert.fail("Given input is expected to pass. Input = "+deviceAddress);
+        }
+        else
+        {
+            System.out.println("Does not accept by SDK, which is expected for given input : "+deviceAddress);
+        }
+    }
     }
 
     @DataProvider(name = "device_address")
     public Object[][] getDeviceId() {
         return new Object[][]
                 {
-                        {device_bhavik_address},
-                        {companyTH},
-                        {user_bhavik_TH},
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622"}, // id
-                        {"0x46336b3895b08af6fc3226f332f96e05cfd3f637"}, //different user's device address
-                        {"avfbdf"},
-                        {" "},
-                        {null},
-                        {"-2d971b59-1cda-4fb4-a022-8b2fa65c7622"}, //Negative
-                        {"  2d971b59-1cda-4fb4-a022-8b2fa65c7622"}, //Forward Space
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622  "}, //Backward Space
-                        {"@#$%^&*("}, // Special Character
-                        {"fyfshsa134uuru"} //alphanumeric
-
+                    {device_bhavik_address, true},
+                    {companyTH, false},
+                    {user_bhavik_TH, false},
+                    {"2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, // id
+                    {"0x46336b3895b08af6fc3226f332f96e05cfd3f637", false}, //different user's device address
+                    {"avfbdf", false},
+                    {" ", false},
+                    {null, false},
+                    {"-2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, //Negative
+                    {"  2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, //Forward Space
+                    {"2d971b59-1cda-4fb4-a022-8b2fa65c7622  ", false}, //Backward Space
+                    {"@#$%^&*(", false}, // Special Character
+                    {"fyfshsa134uuru", false} //alphanumeric
                 };
     }
 
 
     @Test(dataProvider = "user_id")
-    public void get_devices_list_userId(String userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_devices_list_userId(String userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Devices devicesService = services.devices;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
-        //params.put("pagination_identifier", "eyJsYXN0RXZhbHVhdGVkS2V5Ijp7InVpZCI6eyJTIjoiZDE5NGFhNzUtYWNkNS00ZjQwLWIzZmItZTczYTdjZjdjMGQ5In0sIndhIjp7IlMiOiIweDU4YjQxMDY0NzQ4OWI4ODYzNTliNThmZTIyMjYwZWIxOTYwN2IwZjYifX19");
-        //ArrayList<Object> addressesArray = new ArrayList<Object>();
-        //addressesArray.add("0x5906ae461eb6283cf15b0257d3206e74d83a6bd4");
-        //addressesArray.add("0xab248ef66ee49f80e75266595aa160c8c1abdd5a");
-        //params.put("addresses", addressesArray);
-        //params.put("limit", "10");
         JsonObject response = devicesService.getList(params);
         System.out.println("response: " + response.toString());
+            Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+userId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+            }
+        }
     }
 
 
+    // To do - pagination identifier need to add
     @Test(dataProvider = "limit")
-    public void get_devices_list_limit(Object limit) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_devices_list_limit(Object limit, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Devices devicesService = services.devices;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", user_bhavik_id);
-        //params.put("pagination_identifier", "eyJsYXN0RXZhbHVhdGVkS2V5Ijp7InVpZCI6eyJTIjoiZDE5NGFhNzUtYWNkNS00ZjQwLWIzZmItZTczYTdjZjdjMGQ5In0sIndhIjp7IlMiOiIweDU4YjQxMDY0NzQ4OWI4ODYzNTliNThmZTIyMjYwZWIxOTYwN2IwZjYifX19");
-        //ArrayList<Object> addressesArray = new ArrayList<Object>();
-        //addressesArray.add("0x5906ae461eb6283cf15b0257d3206e74d83a6bd4");
-        //addressesArray.add("0xab248ef66ee49f80e75266595aa160c8c1abdd5a");
-        //params.put("addresses", addressesArray);
         params.put("limit", limit);
         JsonObject response = devicesService.getList(params);
         System.out.println("response: " + response.toString());
+            Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+limit);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+limit);
+            }
+        }
     }
 
 
@@ -266,17 +375,32 @@ public class APITests extends Base {
         params.put("addresses", addressesArray);
         JsonObject response = devicesService.getList(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(false,getSuccessMessage(response));
     }
 
 // Device Manager Module
 
     @Test(dataProvider = "user_id")
-    public void get_device_manager(String userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_device_manager(String userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.DeviceManagers deviceManagersService = services.deviceManagers;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
         JsonObject response = deviceManagersService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+userId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+            }
+        }
     }
 
 // Session Module
@@ -285,41 +409,67 @@ public class APITests extends Base {
     public Object[][] getSessionAdd() {
         return new Object[][]
                 {
-                        {session_bhavik_address},
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, //company's session address (different user's address)
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622"},
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622"},
-                        {" "},
-                        {null},
-                        {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, // Negative
-                        {"  0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, //forward Space
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331  "}, //Backward Space
-                        {"0xea2d2-4141de586be3d-3ab0b425aaa7a-118ba3331"}, //Hypen
-                        {"0xea2d241_41de586be3d3ab_0b425aaa7a118b_a3331"} //Underscore
-
-
+                        {session_bhavik_address, true},
+                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //company's session address (different user's address)
+                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622", false},
+                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622", false},
+                        {" ", false},
+                        {null, false},
+                        {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, // Negative
+                        {"  0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //forward Space
+                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331  ", false}, //Backward Space
+                        {"0xea2d2-4141de586be3d-3ab0b425aaa7a-118ba3331", false}, //Hypen
+                        {"0xea2d241_41de586be3d3ab_0b425aaa7a118b_a3331", false} //Underscore
                 };
     }
 
     @Test(dataProvider = "session_address")
-    public void get_session(String sessionAddress) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_session(String sessionAddress, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Sessions sessionsService = services.sessions;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", user_bhavik_id);
         params.put("session_address", sessionAddress);
         JsonObject response = sessionsService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+sessionAddress);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+sessionAddress);
+            }
+        }
     }
 
 
-    @Test
-    public void get_sessions_list() throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    @Test(dataProvider = "limit")
+    public void get_sessions_list(Object limit, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Sessions sessionsService = services.sessions;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("user_id", "29f57b59-60af-4579-9d6c-2ebcb36a9142");
-//params.put("limit", "10");
+        params.put("user_id", user_bhavik_id);
+        params.put("limit", limit);
         JsonObject response = sessionsService.getList(params);
         System.out.println("response: " + response.toString());
+            Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+limit);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+limit);
+            }
+        }
     }
 
 // Recovery Owner Module
@@ -338,12 +488,26 @@ public class APITests extends Base {
 // Balance Module
 
     @Test(dataProvider = "user_id")
-    public void get_balance(String userId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_balance(String userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Balance balanceService = services.balance;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
         JsonObject response = balanceService.get(params);
         System.out.println("response: " + response.toString());
+            Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+userId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+            }
+        }
     }
 
     // Get Transaction Module
@@ -352,40 +516,52 @@ public class APITests extends Base {
     public Object[][] getTransactionUser() {
         return new Object[][]
                 {
-                        {user_bhavik_id, transaction_bhavik_id},
-                        {companyId, transaction_bhavik_id},
-                        {user_bhavik_id, "920b7f72-becf-42ec-8921-af389e8bde64"},   //different user's transaction
-                        {companyId, "5207d6db-e746-44ab-9cd3-aad0db1bd172"},  //different economy's tx
-                        {" ", " "},
-                        {null, null},
-                        {"fsfdgd", "fgdgdhd"}, //Invalid
-                        {"#@$@%^#^#&", "!@##$@%@^@^"}, //Special Character
-                        {"12344858", "2345678"}, // Numeric
-                        {"fdgdgd12344", "gdfgd23tyu"}, //alphanumeric
-                        {"-23456sdfgh", "-1233hydf"} //Negartive
+                        {user_bhavik_id, transaction_bhavik_id, true},
+                        {companyId, transaction_bhavik_id, true},
+                        {user_bhavik_id, "920b7f72-becf-42ec-8921-af389e8bde64", false},   //different user's transaction
+                        {companyId, "5207d6db-e746-44ab-9cd3-aad0db1bd172", false},  //different economy's tx
+                        {" ", " ", false},
+                        {null, null, false},
+                        {user_bhavik_id, "fgdgdhd", false}, //Invalid
+                        {companyId, "!@##$@%@^@^", false}, //Special Character
+
                 };
     }
 
 
     @Test(dataProvider = "get_transaction_user")
-    public void get_transaction(String userId, String transactionId) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_transaction(String userId, String transactionId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
         params.put("transaction_id", transactionId);
         JsonObject response = transactionsService.get(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+userId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+            }
+        }
     }
 // Execute Transaction Module By Direct Method
 
     @Test(dataProvider = "user_id")
-    public void execute_transaction_DT_userId(String user_Id) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void execute_transaction_DT_userId(String userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         HashMap<String, Object> nestedparams = new HashMap<String, Object>();
-        String userId = user_Id;
         String toAddress = directTransfer_TR;
-        String parameter1 = "0xa31e988eebc89d0bc3e4a9a5463545ea534593e4";
+        String parameter1 = user_bhavik_id;
         String parameter2 = "1";
         params.put("user_id", userId);
         params.put("to", toAddress);
@@ -401,9 +577,21 @@ public class APITests extends Base {
         nestedparams.put("parameters", nestedarraylist);
         String jsonStr = gsonObj.toJson(nestedparams);
         params.put("raw_calldata", jsonStr);
-        //params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+userId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+            }
+        }
     }
 
 // Token  Module
@@ -413,33 +601,27 @@ public class APITests extends Base {
     public Object[][] getTokenRule() {
         return new Object[][]
                 {
-                        {directTransfer_TR},
-                        {pricer_TR},
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, //company's session address (different user's address)
-                        {"0x7a27e897ab4b6579c5fe9880806b5a0b7c9e6f0d"}, //Different economy's Token rule
-                        {" "},
-                        {null},
-                        {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, // Negative
-                        {"  0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, //Forward Space
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331   "}, //Backward Space
-                        {"@#$%^&*(&*(*&"}, //Special Character
-                        {"hdhdhdhd"},  //alphabetic
-                        {"gsfd234567"}, //alphanumeric
-                        {"_"}, //Underscore
-                        {"-"} //hypen
-
+                        {directTransfer_TR, true},
+                        {pricer_TR, true},
+                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331" , false}, //company's session address (different user's address)
+                        {"0x7a27e897ab4b6579c5fe9880806b5a0b7c9e6f0d", false}, //Different economy's Token rule
+                        {" ", false},
+                        {null, false},
+                        {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, // Negative
+                        {"  0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //Forward Space
+                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331   ", false}, //Backward Space
+                        {"@#$%^&*(&*(*&", false}, //Special Character
+                        {"hdhdhdhd", false},  //alphabetic
+                        {"gsfd2_34567", false}, //alphanumeric
                 };
     }
 
 
     @Test(dataProvider = "token_rule")
-    public void execute_transaction_DT_TokenRule(String token_rule_id) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void execute_transaction_DT_TokenRule(String token_rule_id, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
-//        HashMap <String,Object> metaProperty = new HashMap<String,Object>();
-//        metaProperty.put("name", "transaction_name"); // like, download
-//        metaProperty.put("type", "user_to_user"); // user_to_user, company_to_user, user_to_company
-//        metaProperty.put("details", ""); // memo field to add additional info about the transaction
 
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         HashMap<String, Object> nestedparams = new HashMap<String, Object>();
         String userId = companyId;
@@ -460,9 +642,21 @@ public class APITests extends Base {
         nestedparams.put("parameters", nestedarraylist);
         String jsonStr = gsonObj.toJson(nestedparams);
         params.put("raw_calldata", jsonStr);
-        //params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+token_rule_id);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+token_rule_id);
+            }
+        }
     }
 
 
@@ -470,29 +664,24 @@ public class APITests extends Base {
     public Object[][] getTransferToAdd() {
         return new Object[][]
                 {
-                        {user_bhavik_TH},
-                        {companyTH},
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, //unkown address
-                        {"abcf12342mfk34"},
-                        {" "},
-                        {null},
-                        {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, // negative
-                        {" 0xea2d24141de586be3d3ab0b425aaa7a118ba3331"}, //forward space
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331 "}, //Backward Space
-                        {"gsgdhgdhfdh"}, //alphabetic
-                        {"@#$%^&*(*&^"}, //Special Character
-                        {"12345678fgsjsjs"}, //alphanumeric
-                        {"_"}, //Underscore
-                        {"-"} //Hypen
-
-
+                        {user_bhavik_TH, true},
+                        {companyTH, true},
+                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //unkown address
+                        {"abcf12342mfk34", false},
+                        {" ", false},
+                        {null, false},
+                        {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, // negative
+                        {" 0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //forward space
+                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331 ", false}, //Backward Space
+                        {"gsgd_hgdhf-dh", false}, //alphabetic
                 };
     }
 
 
     @Test(dataProvider = "transfer_to")
-    public void execute_transaction_DT_transferTo(String transfer_to) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void execute_transaction_DT_transferTo(String transfer_to, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         HashMap<String, Object> nestedparams = new HashMap<String, Object>();
         String userId = companyId;
@@ -515,6 +704,19 @@ public class APITests extends Base {
         params.put("raw_calldata", jsonStr);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+transfer_to);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+transfer_to);
+            }
+        }
     }
 
 
@@ -522,27 +724,28 @@ public class APITests extends Base {
     public Object[][] getTransferAmount() {
         return new Object[][]
                 {
-                        {1},
-                        {0},
-                        {"10"}, //unkown address
-                        {"abcf12342mfk34"},
-                        {" "},
-                        {null},
-                        {"-112525"}, //Negative Value
-                        {"fafsdgd"}, //Alphabetic
-                        {"fsafsfd1235"}, //alphanumeric
-                        {"   1000000000000000000"},// Amount with Space
-                        {"1009393_515363"}, //underscore
-                        {"123456789-2345678"}, //Hypen
-                        {"!@#$%^&*()_)(*&"}, // Special Character
-                        {"1234567.25252622626262"}, //Decimal
-                        {"?"}
+                        {1, true},
+                        {0, false},
+                        {"10", true}, //amount
+                        {"abcf12342mf", false},
+                        {" ", false},
+                        {null, false},
+                        {"-112525", false}, //Negative Value
+                        {"fafsdgd", false}, //Alphabetic
+                        {"fsafsfd1235", false}, //alphanumeric
+                        {"   10000000", false},// Amount with Space
+                        {"1009393_515363", false}, //underscore
+                        {"126789-2345678", false}, //Hypen
+                        {"!@#$%^&*()_)(*&", false}, // Special Character
+                        {"123.25252622626262", false}, //Decimal
+                        {"?", false}
                 };
     }
 
     @Test(dataProvider = "transfer_amount")
-    public void execute_transaction_DT_amount(Object transfer_amount) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void execute_transaction_DT_amount(Object transfer_amount, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         HashMap<String, Object> nestedparams = new HashMap<String, Object>();
         String userId = companyId;
@@ -565,7 +768,21 @@ public class APITests extends Base {
         params.put("raw_calldata", jsonStr);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+transfer_amount);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+transfer_amount);
+            }
+        }
     }
+
 
 
     @Test
@@ -585,7 +802,7 @@ public class APITests extends Base {
         ArrayList<Object> arrayList2 = new ArrayList<Object>();
         Gson gsonObj = new Gson();
 
-        for (int i = 0; i < 10; i++) {
+        for (int i = 0; i < 5; i++) {
             arrayList1.add(transferTo1);
             arrayList2.add(transferAmount1);
         }
@@ -597,6 +814,7 @@ public class APITests extends Base {
         params.put("raw_calldata", jsonStr);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(true, getSuccessMessage(response));
     }
 
     @DataProvider(name = "meta_name")
@@ -604,23 +822,22 @@ public class APITests extends Base {
         return new Object[][]
                 {
 
-                        {"download_IMP MaxLength-25"},  //Exact 25 characters
-                        {"download IMP MaxLength 25 "}, //More than 25
-                        {"t#$%#$^$%^d"}, // Special Character
-                        {"https://ost.com/"},
-                        {" "},
-                        {null},
-                        {"12345678"}, // Numeric Value
-                        {"afsgs123445"}, //alphanumeric
-                        {"-hshydhyffhbbh  1344"}, //Negative alhanumric value with space
+                        {"download_IMP MaxLength-25", true},  //Exact 25 characters
+                        {"download IMP MaxLength 25 ", false}, //More than 25
+                        {"t#$%#$^$%^d", false}, // Special Character
+                        {"https://ost.com/", false},
+                        {" ", true},
+                        {null, false},
+                        {"afsgs123445", true}, //alphanumeric
+                        {"-hshydhyffhbbh  1344", true}, //Negative alhanumric value with space
                 };
-
     }
 
 
     @Test(dataProvider = "meta_name")
-    public void execute_transaction_DT_meta_name(String meta_name) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void execute_transaction_DT_meta_name(String meta_name, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
         HashMap<String, Object> metaProperty = new HashMap<String, Object>();
         metaProperty.put("name", meta_name); // like, download
         metaProperty.put("type", "user_to_user"); // user_to_user, company_to_user, user_to_company
@@ -649,6 +866,19 @@ public class APITests extends Base {
         params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+meta_name);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+meta_name);
+            }
+        }
     }
 
 
@@ -657,23 +887,22 @@ public class APITests extends Base {
         return new Object[][]
                 {
 
-                        {"company_to_user"},
-                        {"user_to_user"},
-                        {"user_to_company"},
-                        {"company to company"},
-                        {"https://ost.com/"},
-                        {" "},
-                        {null},
-                        {"@#$%^&*("}, // Special Character
-                        {"asasdfghjklqwertyuioasdfghjklzxcvbnmasdfghjklqwertyui"} // more than 25 character
-
+                        {"company_to_user", true},
+                        {"user_to_user", true},
+                        {"user_to_company", true},
+                        {"company to company", false},
+                        {"https://ost.com/", false},
+                        {" ", false},
+                        {null, false},
+                        {"@#$%^&*(", false}, // Special Character
                 };
     }
 
 
     @Test(dataProvider = "meta_type")
-    public void execute_transaction_DT_meta_type(String meta_type) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void execute_transaction_DT_meta_type(String meta_type, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
         HashMap<String, Object> metaProperty = new HashMap<String, Object>();
         metaProperty.put("name", "Test name"); // like, download
         metaProperty.put("type", meta_type); // user_to_user, company_to_user, user_to_company
@@ -702,6 +931,19 @@ public class APITests extends Base {
         params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+meta_type);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+meta_type);
+            }
+        }
     }
 
 
@@ -709,22 +951,22 @@ public class APITests extends Base {
     public Object[][] getmetaDetails() {
         return new Object[][]
                 {
-                        /*Exact 125 chars*/  {"memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKL"},
-/*more thna 125 chars*/ {"memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKLB"},// more than 120 chars
-                        {"https://ost.com/"},
-                        {" "},
-                        {null},
-                        {"@#$%^&*()(*!@#$%^&*"}, //Special Character
-                        {"-ggdgdgd123456789"}, // Negative
-                        {"12345678900987654321"} // Numeric Value
-
+                        /*Exact 125 chars*/  {"memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKL", true},
+/*more thna 125 chars*/ {"memo field to add additional info about the transaction IMP Max length 120 characters numbers alphabets spaces_-allowed__ VKLB", false},
+                        {"https://ost.com/", false},
+                        {" ", true},
+                        {null, false},
+                        {"@#$%^&*()(*!@#$%^&*", false}, //Special Character
+                        {"-ggdgdgd123456789", true}, // Negative
+                        {"123 45678900987_54321", true} // Numeric Value
                 };
     }
 
 
     @Test(dataProvider = "meta_details")
-    public void execute_transaction_DT_meta_details(String meta_details) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void execute_transaction_DT_meta_details(String meta_details, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
         HashMap<String, Object> metaProperty = new HashMap<String, Object>();
         metaProperty.put("name", "Test name"); // like, download
         metaProperty.put("type", "company_to_user"); // user_to_user, company_to_user, user_to_company
@@ -753,16 +995,44 @@ public class APITests extends Base {
         params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+meta_details);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+meta_details);
+            }
+        }
     }
 
 
     @Test(dataProvider = "user_id")
-    public void get_transactions_list_userId(String user_id) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_transactions_list_userId(String user_id, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try{
+
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", user_id);
         JsonObject response = transactionsService.getList(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+user_id);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+user_id);
+            }
+        }
     }
 
 
@@ -800,13 +1070,28 @@ public class APITests extends Base {
 
 
     @Test(dataProvider = "limit")
-    public void get_transactions_list_limit(Object limit) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    public void get_transactions_list_limit(Object limit, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+        try
+        {
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", companyId);
         params.put("limit", limit);
         JsonObject response = transactionsService.getList(params);
         System.out.println("response: " + response.toString());
+        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+limit);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+limit);
+            }
+        }
     }
 
 
@@ -896,6 +1181,4 @@ public class APITests extends Base {
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
     }
-
-
 }
