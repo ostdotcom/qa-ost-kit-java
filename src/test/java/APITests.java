@@ -2,6 +2,8 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.ost.OSTSDK;
 import com.ost.services.OSTAPIService;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.testng.Assert;
 import org.testng.ITestResult;
 import org.testng.annotations.*;
@@ -9,6 +11,7 @@ import org.testng.annotations.*;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 
 public class APITests extends Base {
 
@@ -61,7 +64,6 @@ public class APITests extends Base {
         }
     }
 
-
 //Price Point Module
 
     @Test(dataProvider = "chain_id")
@@ -74,7 +76,7 @@ public class APITests extends Base {
         params.put("chain_id", chainId);
         JsonObject response = pricePointsService.get(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -111,10 +113,11 @@ public class APITests extends Base {
 
 // User Module
 
-    @Test
+    @Test(threadPoolSize = 10,invocationCount = 100 )
     public void create_user() throws IOException {
         com.ost.services.Users userService = services.users;
-        HashMap<String, Object> params = new HashMap<String, Object>();
+        HashMap<String, Object> params= new HashMap<String, Object>();
+        //params.put("random", RandomUtils.nextFloat(1,100));
         JsonObject response = userService.create(params);
         System.out.println("response: " + response.toString());
         Assert.assertEquals(true,getSuccessMessage(response));
@@ -124,19 +127,19 @@ public class APITests extends Base {
     public Object[][] getUserId() {
         return new Object[][]
                 {
-                        {user_bhavik_id, true},
+//                        {user_bhavik_id, true},
                         {companyId, true},
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, //different economy
-                        {"avfbdf", false},//alphabetic
-                        {"^!@$$@$#%&*^&(*", false}, //Special Char
-                        {" ", false},
-                        {null, false},
-                        {"-2d971b59-1cda-4fb4-a022-8b2fa65c7622", false},//Negative
-                        {"   2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, // Forward Space
-                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622  ", false}, // Backward Space
-                        {"1234_133", false}, // Underscore
-                        {"1234-12344", false}, // Hypen
-                        {"12345.12345", false}// Decimal Value
+//                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, //different economy
+//                        {"avfbdf", false},//alphabetic
+//                        {"^!@$$@$#%&*^&(*", false}, //Special Char
+//                        {" ", false},
+//                        {null, false},
+//                        {"-2d971b59-1cda-4fb4-a022-8b2fa65c7622", false},//Negative
+//                        {"   2d971b59-1cda-4fb4-a022-8b2fa65c7622", false}, // Forward Space
+//                        {"2d971b59-1cda-4fb4-a022-8b2fa65c7622  ", false}, // Backward Space
+//                        {"1234_133", false}, // Underscore
+//                        {"1234-12344", false}, // Hypen
+//                        {"12345.12345", false}// Decimal Value
                 };
     }
 
@@ -150,7 +153,7 @@ public class APITests extends Base {
         params.put("user_id", userId);
         JsonObject response = userService.get(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -195,7 +198,7 @@ public class APITests extends Base {
         params.put("limit", limit);
         JsonObject response = userService.getList(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -225,13 +228,13 @@ public class APITests extends Base {
     }
 
 
-    @Test
+    @Test(threadPoolSize = 1,invocationCount = 1)
     public void create_device() throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Devices devicesService = services.devices;
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", user_bhavik_id);
-        params.put("address", "0x1Ea365269A3e6c8fa492eca9A531BFaC8bA1649E");
-        params.put("api_signer_address", "0x5F860598383868e8E8Ee0ffC5ADD92369Db37455");
+        params.put("address", user_bhavik_TH);
+        params.put("api_signer_address", "0x5F860598383868e8E8Ee0ffC5ADD92369Db37454");
         params.put("device_uuid", "593a967f-87bd-49a6-976c-52edf46c4df4");
         params.put("device_name", "Iphone S");
         JsonObject response = devicesService.create(params);
@@ -249,7 +252,7 @@ public class APITests extends Base {
         params.put("device_address", device_bhavik_address);
         JsonObject response = devicesService.get(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
     }
         catch (Exception e)
         {
@@ -275,7 +278,7 @@ public class APITests extends Base {
         params.put("device_address", deviceAddress);
         JsonObject response = devicesService.get(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
     }
         catch (Exception e)
     {
@@ -319,7 +322,7 @@ public class APITests extends Base {
         params.put("user_id", userId);
         JsonObject response = devicesService.getList(params);
         System.out.println("response: " + response.toString());
-            Assert.assertEquals(successStatus,getSuccessMessage(response));
+            Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -345,7 +348,7 @@ public class APITests extends Base {
         params.put("limit", limit);
         JsonObject response = devicesService.getList(params);
         System.out.println("response: " + response.toString());
-            Assert.assertEquals(successStatus,getSuccessMessage(response));
+            Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -388,7 +391,7 @@ public class APITests extends Base {
         params.put("user_id", userId);
         JsonObject response = deviceManagersService.get(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -432,7 +435,7 @@ public class APITests extends Base {
         params.put("session_address", sessionAddress);
         JsonObject response = sessionsService.get(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -447,7 +450,6 @@ public class APITests extends Base {
         }
     }
 
-
     @Test(dataProvider = "limit")
     public void get_sessions_list(Object limit, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Sessions sessionsService = services.sessions;
@@ -457,7 +459,7 @@ public class APITests extends Base {
         params.put("limit", limit);
         JsonObject response = sessionsService.getList(params);
         System.out.println("response: " + response.toString());
-            Assert.assertEquals(successStatus,getSuccessMessage(response));
+            Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -495,7 +497,7 @@ public class APITests extends Base {
         params.put("user_id", userId);
         JsonObject response = balanceService.get(params);
         System.out.println("response: " + response.toString());
-            Assert.assertEquals(successStatus,getSuccessMessage(response));
+            Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -535,10 +537,10 @@ public class APITests extends Base {
         try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         params.put("user_id", userId);
-        params.put("transaction_id", transactionId);
+        params.put("transaction_id", "fad4c31a-b172-429c-b1f2-5b023841bebb");
         JsonObject response = transactionsService.get(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -554,17 +556,19 @@ public class APITests extends Base {
     }
 // Execute Transaction Module By Direct Method
 
-    @Test(dataProvider = "user_id")
+    // threadPoolSize = 300, invocationCount = 2000
+    @Test(dataProvider = "user_id", threadPoolSize = 10, invocationCount = 50)
     public void execute_transaction_DT_userId(String userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
         try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         HashMap<String, Object> nestedparams = new HashMap<String, Object>();
         String toAddress = directTransfer_TR;
-        String parameter1 = user_bhavik_id;
-        String parameter2 = "1";
+        String parameter1 =user_bhavik_TH;
+        String parameter2 = "1000000000000000000";
         params.put("user_id", userId);
         params.put("to", toAddress);
+        params.put("random", RandomUtils.nextFloat(1,100));
         nestedparams.put("method", "directTransfers");
         ArrayList<ArrayList> nestedarraylist = new ArrayList<ArrayList>();
         ArrayList<Object> arrayList1 = new ArrayList<Object>();
@@ -579,7 +583,7 @@ public class APITests extends Base {
         params.put("raw_calldata", jsonStr);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -621,13 +625,25 @@ public class APITests extends Base {
     public void execute_transaction_DT_TokenRule(String token_rule_id, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
 
+        HashMap<String,Object> sdkConfig = new HashMap<String,Object>();
+        sdkConfig.put("apiEndpoint",endPoint);
+        sdkConfig.put("apiKey",apiKey);
+        sdkConfig.put("apiSecret",secretKey);
+
+
+        HashMap <String,Object> nestedparam = new HashMap<String,Object>();
+        nestedparam.put("timeout", (long) 15);
+        sdkConfig.put("config", nestedparam);
+
+        OSTSDK ostObj = new OSTSDK(sdkConfig);
+        services = (com.ost.services.Manifest) ostObj.services;
         try{
         HashMap<String, Object> params = new HashMap<String, Object>();
         HashMap<String, Object> nestedparams = new HashMap<String, Object>();
         String userId = companyId;
         String toAddress = token_rule_id;
         String transferTo1 = user_bhavik_TH;
-        String transferAmount1 = "1";
+        String transferAmount1 = "100";
         params.put("user_id", userId);
         params.put("to", toAddress);
         nestedparams.put("method", "directTransfers");
@@ -644,7 +660,7 @@ public class APITests extends Base {
         params.put("raw_calldata", jsonStr);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -664,16 +680,16 @@ public class APITests extends Base {
     public Object[][] getTransferToAdd() {
         return new Object[][]
                 {
-                        {user_bhavik_TH, true},
-                        {companyTH, true},
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //unkown address
-                        {"abcf12342mfk34", false},
-                        {" ", false},
-                        {null, false},
-                        {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, // negative
-                        {" 0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //forward space
-                        {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331 ", false}, //Backward Space
-                        {"gsgd_hgdhf-dh", false}, //alphabetic
+                    {user_bhavik_TH, true},
+                    {companyTH, true},
+                    {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //unkown address
+                    {"abcf12342mfk34", false},
+                    {" ", false},
+                    {null, false},
+                    {"-0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, // negative
+                    {" 0xea2d24141de586be3d3ab0b425aaa7a118ba3331", false}, //forward space
+                    {"0xea2d24141de586be3d3ab0b425aaa7a118ba3331 ", false}, //Backward Space
+                    {"gsgd_hgdhf-dh", false}, //alphabetic
                 };
     }
 
@@ -704,7 +720,7 @@ public class APITests extends Base {
         params.put("raw_calldata", jsonStr);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -768,7 +784,7 @@ public class APITests extends Base {
         params.put("raw_calldata", jsonStr);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -821,26 +837,27 @@ public class APITests extends Base {
     public Object[][] getMetaName() {
         return new Object[][]
                 {
-
-                        {"download_IMP MaxLength-25", true},  //Exact 25 characters
-                        {"download IMP MaxLength 25 ", false}, //More than 25
-                        {"t#$%#$^$%^d", false}, // Special Character
-                        {"https://ost.com/", false},
-                        {" ", true},
-                        {null, false},
-                        {"afsgs123445", true}, //alphanumeric
-                        {"-hshydhyffhbbh  1344", true}, //Negative alhanumric value with space
+                        { "name_test3",true}
+//                        {"download_IMP MaxLength-25", true},  //Exact 25 characters
+//                        {"download IMP MaxLength 25 ", false}, //More than 25
+//                        {"t#$%#$^$%^d", false}, // Special Character
+//                        {"https://ost.com/", false},
+//                        {" ", true},
+//                        {null, false},
+//                        {"afsgs123445", true}, //alphanumeric
+//                        {"-hshydhyffhbbh  1344", true}, //Negative alphanumeric value with space
                 };
     }
 
 
-    @Test(dataProvider = "meta_name")
+    @Test(dataProvider = "meta_name", threadPoolSize = 2,invocationCount = 5000)
     public void execute_transaction_DT_meta_name(String meta_name, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
         try{
+            System.out.println(meta_name);
         HashMap<String, Object> metaProperty = new HashMap<String, Object>();
         metaProperty.put("name", meta_name); // like, download
-        metaProperty.put("type", "user_to_user"); // user_to_user, company_to_user, user_to_company
+        metaProperty.put("type", "company_to_user"); // user_to_user, company_to_user, user_to_company
         metaProperty.put("details", "Test details"); // memo field to add additional info about the transaction
 
         HashMap<String, Object> params = new HashMap<String, Object>();
@@ -851,6 +868,7 @@ public class APITests extends Base {
         String transferAmount1 = "1";
         params.put("user_id", userId);
         params.put("to", toAddress);
+        params.put("random", RandomUtils.nextFloat(1,100));
         nestedparams.put("method", "directTransfers");
         ArrayList<ArrayList> nestedarraylist = new ArrayList<ArrayList>();
         ArrayList<Object> arrayList1 = new ArrayList<Object>();
@@ -866,7 +884,7 @@ public class APITests extends Base {
         params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -931,7 +949,7 @@ public class APITests extends Base {
         params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -995,7 +1013,7 @@ public class APITests extends Base {
         params.put("meta_property", metaProperty);
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -1020,7 +1038,7 @@ public class APITests extends Base {
         params.put("user_id", user_id);
         JsonObject response = transactionsService.getList(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -1059,13 +1077,16 @@ public class APITests extends Base {
     @Test(dataProvider = "status")
     public void get_transactions_list_status(Object status) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
         com.ost.services.Transactions transactionsService = services.transactions;
+
         ArrayList<Object> statusArray = new ArrayList<Object>();
         statusArray.add(status);
-        HashMap<String, Object> params = new HashMap<String, Object>();
-        params.put("user_id", companyId);
-        params.put("status", statusArray);
-        JsonObject response = transactionsService.getList(params);
-        System.out.println("response: " + response.toString());
+
+
+        HashMap <String,Object> params = new HashMap<String,Object>();
+        params.put("user_id", user_bhavik_id);
+        params.put("statuses", statusArray);
+        JsonObject response = transactionsService.getList( params );
+        System.out.println("response: " + response.toString() );
     }
 
 
@@ -1079,7 +1100,7 @@ public class APITests extends Base {
         params.put("limit", limit);
         JsonObject response = transactionsService.getList(params);
         System.out.println("response: " + response.toString());
-        Assert.assertEquals(successStatus,getSuccessMessage(response));
+        Assert.assertEquals(getSuccessMessage(response),successStatus);
         }
         catch (Exception e)
         {
@@ -1146,8 +1167,8 @@ public class APITests extends Base {
         }
     }
 
-    @Test
-    public void pay_transafer() throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+    @Test()
+    public void pay_transfer() throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
 
         com.ost.services.Transactions transactionsService = services.transactions;
 
@@ -1181,4 +1202,47 @@ public class APITests extends Base {
         JsonObject response = transactionsService.execute(params);
         System.out.println("response: " + response.toString());
     }
+
+/*
+    @Test(dataProvider="user_id", threadPoolSize = 500, invocationCount = 500)
+    public void execute_transaction_DT_alpesh(String userId, boolean successStatus) throws OSTAPIService.MissingParameter, IOException, OSTAPIService.InvalidParameter {
+        com.ost.services.Transactions transactionsService = services.transactions;
+        try{
+            HashMap<String, Object> params = new HashMap<String, Object>();
+            HashMap<String, Object> nestedparams = new HashMap<String, Object>();
+            String toAddress = directTransfer_TR;
+            String parameter1 = user_bhavik_TH;
+            String parameter2 = "1";
+            params.put("user_id", companyId);
+            params.put("to", toAddress);
+            params.put("random", RandomUtils.nextFloat(1,10000));
+            nestedparams.put("method", "directTransfers");
+            ArrayList<ArrayList> nestedarraylist = new ArrayList<ArrayList>();
+            ArrayList<Object> arrayList1 = new ArrayList<Object>();
+            arrayList1.add(parameter1);
+            ArrayList<Object> arrayList2 = new ArrayList<Object>();
+            Gson gsonObj = new Gson();
+            arrayList2.add(parameter2);
+            nestedarraylist.add(arrayList1);
+            nestedarraylist.add(arrayList2);
+            nestedparams.put("parameters", nestedarraylist);
+            String jsonStr = gsonObj.toJson(nestedparams);
+            params.put("raw_calldata", jsonStr);
+            JsonObject response = transactionsService.execute(params);
+            System.out.println("response: " + response.toString());
+            Assert.assertEquals(getSuccessMessage(response),successStatus);
+        }
+        catch (Exception e)
+        {
+            if(successStatus)
+            {
+                Assert.fail("Given input is expected to pass. Input = "+userId);
+            }
+            else
+            {
+                System.out.println("Does not accept by SDK, which is expected for given input : "+userId);
+            }
+        }
+    } */
+
 }
